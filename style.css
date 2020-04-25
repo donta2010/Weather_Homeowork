@@ -1,0 +1,62 @@
+h1{
+    text-align: center;
+    height: 150px;
+    background-color: cornflowerblue;
+    text-shadow: darkgrey;
+    font-weight: bold;
+    font-size: 60px;
+    margin: 0em;
+    top: 0;
+    padding: 0em;
+    border: 0em;
+    margin-block-start: 0em;
+    margin-block-end: 0em;
+    box-sizing: border-box;
+}
+.big{
+    position: relative;
+    left: 15%;
+}
+.topBlock{
+   
+   float: right;
+    /* float: center; */
+    margin: 0em;
+    padding: 0em;
+
+}
+#leftBlock{
+    float: left;
+    width: 200px;
+   padding-right: 20mm;
+    background-color: darkgrey;
+    z-index: 0;
+} 
+
+
+#info{
+   font-size: 38px;
+   text-align: center;
+   position: relative;
+   box-sizing: border-box;
+   margin: 0em auto;
+   border: 2px solid black;
+   width: 400px;
+}
+.wrap{
+    font-size: 38px;
+    width: 400px;
+    align-items: flex-start;
+    text-align: center;
+    position: relative;
+    box-sizing: border-box;
+    margin: 0em auto;
+    border: 2px solid black;
+    z-index: -2;
+    
+    }
+
+/* #CityDate{
+    margin-left: 0em;
+} */
+

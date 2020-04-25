@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <header><h1>Weather Dashboard</h1>
+    </header>
+    <div>
+    <section id="leftBlock">
+        Recent Searches
+        <p>
+            <textarea class="textBox"></textarea><button id="wBtn">Search</button>
+        </p>
+    <table class="taki searchb" ></table>
+    </section>
+    </div>
+    <div>
+            <div class="wrap">
+        <p id="lma" class="CityDate"></p>
+        </div>
+        <section id="info">
+        <ul style="list-style-type:none;">
+            <li id="temperature"></li>
+            <li id="Humidity"></li>
+            <li id="windSpeed"></li>
+            <li id="uvIndex"></li>
+        </ul>
+    </section>
+    </div>
+    <span class="big">
+
+    </span>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src ="https://momentjs.com/downloads/moment.js"></script>
+    <script>
+            var Hey;
+            var city;
+            var cityLast;
+            var temps;
+            var humiditys;
+            var time;
+            var windSpeed;
+            var uvIndex;
+            var currentTimetest = moment().format("MM/DD/YYYY");
+            var currentTime = moment(currentTimetest).format('L');
+            var weatherArray=[];
+            var lat;
+            var lon;
+            var UVI;
+            var uvIndex;
+            var URLqueryLink3 =`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${APIKEY}`;
+
+            // $( document ).ready(function() {
+            console.log("PAGE HAS LOADED");
+            searchBox =$(".textBox");
+            console.log("This is search box",searchBox);
+            localStorageCity = JSON.parse(localStorage.getItem("cities"));
+            console.log("This is local storage city",localStorageCity);
+            if(localStorageCity){
+                cityLast= localStorageCity[(localStorageCity.length-1)]; 
+            }
+            console.log("This is the last city", cityLast) 
+            $("#lma").text(`${cityLast} ${currentTime}`);  
+            var APIKEY = "09f267f72eebe4cc1fb390b1f20eec91";
+            var  queryString2 = `https://api.openweathermap.org/data/2.5/weather?q=${cityLast}&appid=${APIKEY}`;
+            var queryString5 = `http://api.openweathermap.org/data/2.5/uvi?appid=${APIKEY}&lat=${lat}&lon=${lon}`;
+
+            //local storage
+            // localStorageCity = JSON.parse(localStorage.getItem("cities"));
+            // LastCity();
+
+            //Rendering from local storage - need to update        
+            function localStorageCityfunction() {
+            $.ajax({
+                url:queryString2,
+                method:"Get",
+            })
+            .then(function(response){
+                weatherObj = response
+                temps = Math.floor(((((weatherObj.main.temp)-273.15)*1.8)+32));
+                humiditys =Math.floor(weatherObj.main.humidity);
+                windSpeed = weatherObj.wind.speed;
+                uvIndex;
+                T=$("#temperature");
+                H=$("#Humidity");
+                wS=$("#windSpeed");
+                uvIndex=$("#uvIndex")
+                // Need this
+                T.text("Temperature "+temps+"F");
+                H.text("Humidity "+ humiditys+"%");
+                wS.text("Wind Speed "+ windSpeed+"mph");
+                lat=(weatherObj.coord.lat);
+                lon=(weatherObj.coord.lon);
+                URLqueryLink3 =`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${APIKEY}`;
+            $.ajax({
+                url: `http://api.openweathermap.org/data/2.5/uvi?appid=${APIKEY}&lat=${lat}&lon=${lon}`,
+                method:"Get",
+                })
+                .then(function(response){
+                    UVI =response.value;
+                    uvIndex.text(`UV Index ${UVI}`);})
+                    if (0<UVI<3);{
+                        $(uvIndex).css("color","green")
+                    }
+                    if (3<UVI<8){
+                        $(uvIndex).css("color","yellow")
+                    }
+                    else{
+                        $(uvIndex).css("color","red")
+                    }
+            $.ajax({
+                 url:`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${APIKEY}`,
+                 method:"Get",
+             })
+             .then(function(respond){
+                var fivedayforecast = respond
+                var day =fivedayforecast.daily;
+                var slice = day.slice(1, 6);
+                for (let i=0; i<slice.length; i++){
+                let maxTemp = (Math.floor((slice[i].temp.max-273.15)*1.8+32));
+                let humidityFC = slice[i].humidity
+                var minicard =$("<div>")
+                minicard.css("border", "solid");
+                minicard.css("margin-top","8px");
+                minicard.css("margin-right","8px");
+                minicard.css("border-color","lightgrey");
+                minicard.css("background-color","cornflowerblue");
+                minicard.css("font-size","12px");
+                minicard.css("width", "200px");
+                minicard.css("display", "inline-block");
+                var weatherIcon = slice[i].weather[0].icon
+                var weatherPic=$("<img>");
+                var weatherURL = `http://openweathermap.org/img/wn/${weatherIcon}@2x.png`;
+                weatherPic.attr("src", weatherURL)
+                var TFC = $("<p>");
+                var HFC = $("<p>");
+                TFC.text(`Temp: ${maxTemp} F`);
+                HFC.text(`${humidityFC}% Humidty`);
+                console.log(TFC)
+
+
+                minicard.append(TFC);
+                minicard.append(HFC);
+                minicard.append(weatherPic)
+                console.log(maxTemp)
+                $(".big").append(minicard);
+                
+                }
+             })
+        })
+            }
+            localStorageCityfunction();
+
+          //Creating the search button
+          var a;
+          var searchBtn = $("#wBtn");
+            console.log(searchBtn);
+            //Created the search button and below is the on.click for the search button
+            searchBtn.on("click",function(){
+            city =searchBox.val();
+            $(".CityDate").text(city);
+            weatherArray.push(city);
+            localStorage.setItem("cities", JSON.stringify(weatherArray));
+            localStorageCity = JSON.parse(localStorage.getItem("cities"));
+            console.log("This is local storage city",localStorageCity);
+            cityLast=weatherArray[(weatherArray.length-1)];
+            console.log("This should be the last city", cityLast);
+            $(".CityDate").text(`${city}${currentTime}`);
+            for(var i=0; i<1; i++){
+            var recentSearch= $("<tr>");
+            a=$("<button>");
+            a.text(city);
+            a.addClass("recent");
+            $(recentSearch).prepend(a);
+            $(".taki").prepend(recentSearch);
+            }
+            // searchBox.val()="";
+            // How do I empty the text box after I pressed search.
+            console.log("This is textbox", city);
+            function Hello(city){
+            var link = "api.openweathermap.org/data/2.5/weather";
+            var  queryString = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${APIKEY}`;
+            console.log("this is city final", city);
+            console.log(queryString);
+            var weatherObj = null
+            $.get(queryString, function(response, _) {
+            console.log("this is city final", city);
+            console.log(queryString);
+                console.log("RESP")
+                console.log(response)
+                weatherObj = response
+            }).then(function() {
+                temps = Math.floor(((((weatherObj.main.temp)-273.15)*1.8)+32));
+                humiditys =Math.floor(weatherObj.main.humidity);
+                windSpeed = weatherObj.wind.speed;
+                console.log(temps);
+                console.log(humiditys);
+                console.log("This is wind speed",windSpeed);
+                T=$("#temperature");
+                H=$("#Humidity");
+                wS=$("#windSpeed");
+                uvIndex=$("#uvIndex");
+                // Need this
+                T.text("Temperature "+temps+"F");
+                H.text("Humidity "+ humiditys+"%");
+                wS.text("Wind Speed "+ windSpeed);
+                console.log("This is the weather object", weatherObj);
+                console.log(weatherObj.coord.lat);
+                lat=(weatherObj.coord.lat);
+                lon =(weatherObj.coord.lon);
+                queryString5 = `http://api.openweathermap.org/data/2.5/uvi?appid=${APIKEY}&lat=${lat}&lon=${lon}`
+
+                $.ajax({
+                url:queryString5,
+                method:"Get",
+                })
+                .then(function(response){
+                    UVI =response.value;
+                    uvIndex.text(`UV Index ${UVI}`);
+                    if (0<UVI<3);{
+                        $(uvIndex).css("color","green")
+                    }
+                    if (3<UVI<8){
+                        $(uvIndex).css("color","yellow")
+                    }
+                    else{
+                        $(uvIndex).css("color","red")
+                    }
+            })
+                       //minicard function
+            URLqueryLink3 =`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${APIKEY}`;
+                $.ajax({
+                 url:URLqueryLink3,
+                 method:"Get",
+             })
+             .then(function(respond){
+                $(".big").empty();
+                var fivedayforecast = respond
+                console.log("Five day forecast", fivedayforecast);
+                var day =fivedayforecast.daily;
+                var slice = day.slice(1, 6);
+                for (let i=0; i<slice.length; i++){
+                
+                let maxTemp = (Math.floor((slice[i].temp.max-273.15)*1.8+32));
+                let humidityFC = slice[i].humidity
+                console.log(slice);
+                console.log("five day forecast temp daily 1", fivedayforecast.current);
+                console.log(`This is the 5 day forcast max temp, should be 282.96 ${maxTemp}, ${humidityFC}`)
+                var minicard =$("<div>")
+                minicard.css("border", "solid");
+                minicard.css("margin-top","8px");
+                minicard.css("margin-right","8px");
+                minicard.css("border-color","lightgrey");
+                minicard.css("background-color","cornflowerblue");
+                minicard.css("font-size","12px");
+                minicard.css("width", "200px");
+                minicard.css("display", "inline-block");
+                var weatherIcon = slice[i].weather[0].icon
+                var weatherPic=$("<img>");
+                var weatherURL = `http://openweathermap.org/img/wn/${weatherIcon}@2x.png`;
+                weatherPic.attr("src", weatherURL)
+                var TFC = $("<p>");
+                var HFC = $("<p>");
+                TFC.text(`Temp: ${maxTemp} F`);
+                HFC.text(`${humidityFC}% Humidty`);
+                console.log(TFC)
+
+
+                minicard.append(TFC);
+                minicard.append(HFC);
+                minicard.append(weatherPic)
+                console.log(maxTemp)
+                $(".big").append(minicard);
+                
+                }
+             })
+            })}
+            hey=Hello;
+            return Hello(city);
+             })
+            $(document).on("click", ".recent",function(){
+                city =$(this).text();
+                console.log("This is city for click",city);
+                return hey(city);
+
+            })
+            
+ 
+    </script>
+    
+</body>
+</html>
